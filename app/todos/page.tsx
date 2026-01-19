@@ -1,4 +1,3 @@
-import db from '@/lib/db'
 import { todos } from '@/lib/schema'
 import { eq, desc } from 'drizzle-orm'
 import { authServer } from '@/lib/auth/server'
