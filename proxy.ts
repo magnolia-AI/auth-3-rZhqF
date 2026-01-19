@@ -9,5 +9,8 @@ export const config = {
   matcher: [
     // Protected routes requiring authentication
     "/account/:path*",
+    "/todos/:path*",
+    "/todos",
   ],
 };
+
