@@ -5,38 +5,45 @@ import { eq, desc } from 'drizzle-orm'
 import { authServer } from '@/lib/auth/server'
 
 export async function GET() {
-  console.log('[API] GET /api/todos - Fetching todos')
+  console.log('>>> [DEBUG] GET /api/todos handler started')
+  console.log('>>> [DEBUG] DB Connection check:', process.env.DATABASE_URL ? 'URL PRESENT' : 'MISSING URL')
+  
   try {
-    const result: any = await authServer.getSession()
-    const session = result?.data
+    const sessionResponse: any = await authServer.getSession()
+    const session = sessionResponse?.data
     
     if (!session?.user?.id) {
-      console.warn('[API] GET /api/todos - Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Direct check of the table content to see if it throws
     const data = await db
       .select()
       .from(todos)
       .where(eq(todos.userId, session.user.id))
       .orderBy(desc(todos.createdAt))
 
-    console.log(`[API] GET /api/todos - Success: Found ${data.length} todos`)
     return NextResponse.json(data)
-  } catch (error) {
-    console.error('[API] GET /api/todos - Critical Error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('>>> [CRITICAL] GET /api/todos failed:', error)
+    return NextResponse.json(
+      { 
+        error: 'Internal Server Error', 
+        details: error?.message,
+        table: 'todo_items',
+        msg: 'Please check if the table was correctly migrated to the PUBLIC schema.'
+      }, 
+      { status: 500 }
+    )
   }
 }
 
 export async function POST(request: NextRequest) {
-  console.log('[API] POST /api/todos - Creating new todo')
   try {
-    const result: any = await authServer.getSession()
-    const session = result?.data
+    const sessionResponse: any = await authServer.getSession()
+    const session = sessionResponse?.data
     
     if (!session?.user?.id) {
-      console.warn('[API] POST /api/todos - Unauthorized access attempt')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -50,11 +57,13 @@ export async function POST(request: NextRequest) {
       userId: session.user.id,
     }).returning()
 
-    console.log(`[API] POST /api/todos - Success: Created todo ${newTodo[0].id}`)
     return NextResponse.json(newTodo[0], { status: 201 })
-  } catch (error) {
-    console.error('[API] POST /api/todos - Critical Error:', error)
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+  } catch (error: any) {
+    console.error('>>> [CRITICAL] POST /api/todos failed:', error)
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: error?.message }, 
+      { status: 500 }
+    )
   }
 }
 
