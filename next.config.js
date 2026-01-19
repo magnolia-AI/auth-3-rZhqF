@@ -42,7 +42,7 @@ const nextConfig = {
       allowedOrigins: ['*.fly.dev', '*.vy.app', 'vy.app'],
     },
   },
-  allowedDevOrigins: ['*.fly.dev', 'vy.app', '*.vy.app'],
+  allowedDevOrigins: ['*.fly.dev', 'vy.app', '*.vy.app', 'pre-97wprc5z.fly.dev'],
   output: 'standalone',
   images: {
     remotePatterns: [
@@ -91,3 +91,4 @@ const nextConfig = {
 }
 
 module.exports = nextConfig
+
